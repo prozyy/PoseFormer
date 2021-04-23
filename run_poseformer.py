@@ -54,6 +54,9 @@ dataset_path = 'data/data_3d_' + args.dataset + '.npz'
 if args.dataset == 'h36m':
     from common.h36m_dataset import Human36mDataset
     dataset = Human36mDataset(dataset_path)
+elif args.dataset == 'h37m':
+    from common.h36m_dataset_our import Human36mDataset
+    dataset = Human36mDataset(dataset_path)
 elif args.dataset.startswith('humaneva'):
     from common.humaneva_dataset import HumanEvaDataset
     dataset = HumanEvaDataset(dataset_path)
