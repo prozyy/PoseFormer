@@ -37,10 +37,8 @@ def get_fps(filename):
 
 
 def read_video(filename, skip=0, limit=-1):
-    # w, h = get_resolution(filename)
-    w = 1000
-    h = 1002
-
+    w, h = get_resolution(filename)
+    
     command = ['ffmpeg',
                '-i', filename,
                '-f', 'image2pipe',
@@ -106,7 +104,7 @@ def render_animation(keypoints, keypoints_metadata, poses, skeleton, fps, bitrat
         ax.set_title(title)  # , pad=35
         ax_3d.append(ax)
         lines_3d.append([])
-        trajectories.append(data[:, 0, [0, 1]])
+        trajectories.append(data[:, 0, 0, [0, 1]])
     poses = list(poses.values())
 
     # Decode video
@@ -173,7 +171,7 @@ def render_animation(keypoints, keypoints_metadata, poses, skeleton, fps, bitrat
 
                 col = 'red' if j in skeleton.joints_right() else 'black'
                 for n, ax in enumerate(ax_3d):
-                    pos = poses[n][i]
+                    pos = poses[n][i][0]
                     lines_3d[n].append(ax.plot([pos[j, 0], pos[j_parent, 0]],
                                                [pos[j, 1], pos[j_parent, 1]],
                                                [pos[j, 2], pos[j_parent, 2]], zdir='z', c=col))
@@ -193,7 +191,7 @@ def render_animation(keypoints, keypoints_metadata, poses, skeleton, fps, bitrat
                                              [keypoints[i, j, 1], keypoints[i, j_parent, 1]])
 
                 for n, ax in enumerate(ax_3d):
-                    pos = poses[n][i]
+                    pos = poses[n][i][0]
                     lines_3d[n][j - 1][0].set_xdata(np.array([pos[j, 0], pos[j_parent, 0]]))
                     lines_3d[n][j - 1][0].set_ydata(np.array([pos[j, 1], pos[j_parent, 1]]))
                     lines_3d[n][j - 1][0].set_3d_properties(np.array([pos[j, 2], pos[j_parent, 2]]), zdir='z')
