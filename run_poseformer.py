@@ -529,8 +529,24 @@ def evaluate(test_generator, action=None, return_predictions=False, use_trajecto
                 inputs_3d = inputs_3d.cuda()
             inputs_3d[:, :, 0] = 0
 
-            predicted_3d_pos = model_pos(inputs_2d)
-            predicted_3d_pos_flip = model_pos(inputs_2d_flip)
+            bs = inputs_2d.shape[0]
+            iters = (bs - 1) // 1000 + 1
+            predicted_3d_pos = None
+            predicted_3d_pos_flip = None
+            for iter_index in range(iters):
+                start = iter_index * 1000
+                end = np.min([(iter_index + 1) * 1000,bs])
+                predicted_3d_pos_ = model_pos(inputs_2d[start:end])
+                predicted_3d_pos_flip_ = model_pos(inputs_2d_flip[start:end])
+                if iter_index == 0:
+                    predicted_3d_pos = predicted_3d_pos_
+                    predicted_3d_pos_flip = predicted_3d_pos_flip_
+                else:
+                    predicted_3d_pos = torch.cat((predicted_3d_pos, predicted_3d_pos_), dim=0)
+                    predicted_3d_pos_flip = torch.cat((predicted_3d_pos_flip, predicted_3d_pos_flip_), dim=0)
+
+            # predicted_3d_pos = model_pos(inputs_2d)
+            # predicted_3d_pos_flip = model_pos(inputs_2d_flip)
             predicted_3d_pos_flip[:, :, :, 0] *= -1
             predicted_3d_pos_flip[:, :, joints_left + joints_right] = predicted_3d_pos_flip[:, :,
                                                                       joints_right + joints_left]
